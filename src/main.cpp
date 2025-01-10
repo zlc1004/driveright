@@ -246,17 +246,10 @@ ASSET(path_jerryio_2_txt);
 ASSET(path_jerryio_3_txt);
 ASSET(path_jerryio_4_txt);
 void autonomous() {
-//   pros::Motor intakeMotor(7, pros::MotorGears::blue);
-  lemlib::Pose poseA(0, // x position
-                     0, // y position
-                     0);      // heading
-  chassis.setPose(poseA);
-//   chassis.follow(path_jerryio_1_txt, 10, 1000, false);
-//   // chassis.follow(path_jerryio_2_txt, 10, 5000);
-//   // chassis.follow(path_jerryio_3_txt, 10, 7500);
-//   // chassis.follow(path_jerryio_4_txt, 10, 7500);
-  
-  chassis.moveToPoint(0,50,2000);
-  left_motor_group.brake();
-  right_motor_group.brake();
+  pros::Motor intakeMotor(7, pros::MotorGears::blue);
+  lemlib::Pose startPose(-52.774, // x position
+                     -11.717, // y position
+                     90);      // heading
+  chassis.setPose(startPose);
+  chassis.follow(path_jerryio_1_txt, 10, 1000, false);
 }
