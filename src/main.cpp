@@ -282,7 +282,7 @@ void autonomous()
   pros::Motor armMotor(8, pros::MotorGears::blue);
   lemlib::Pose startPose(-52.774, // x position
                          -11.717, // y position
-                         90);     // heading
+                         270);     // heading
   chassis.setPose(startPose);
   chassis.follow(path_jerryio_1_txt, 10, 1000, false);
   pros::delay(1000);
