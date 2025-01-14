@@ -95,11 +95,10 @@ std::string thinkOfIt =
 int scrollIndex = 0;
 bool pistonState = false;
 bool hitlerState = false;
+bool hangPistonState = false;
 
-void scrollByOne()
-{
-  if (scrollIndex == 4)
-  {
+void scrollByOne() {
+  if (scrollIndex == 4) {
     char temp = thinkOfIt[0];
     thinkOfIt.erase(thinkOfIt.begin());
     thinkOfIt.push_back(temp);
@@ -113,11 +112,11 @@ void scrollByOne()
 }
 
 // initialize function. Runs on program startup
-void initialize()
-{
+void initialize() {
   //
   pros::adi::DigitalOut piston('A');
   pros::adi::DigitalOut hitler('B');
+  pros::adi::DigitalOut hangPiston('C');
   pros::Motor intakeMotor(7, pros::MotorGears::blue);
   pros::Motor armMotor(8, pros::MotorGears::blue);
   armMotor.set_brake_mode(pros::motor_brake_mode_e_t::E_MOTOR_BRAKE_HOLD);
@@ -129,8 +128,7 @@ void initialize()
   pros::lcd::print(0, "calibrateing");
   chassis.calibrate(); // calibrate sensors
   // print position to brain screen
-  pros::Task screen_task([&]()
-                         {
+  pros::Task screen_task([&]() {
     while (true) {
       // print robot location to the brain screen
       pros::lcd::print(0, "X: %f", chassis.getPose().x);         // xc
@@ -143,7 +141,8 @@ void initialize()
       scrollByOne();
       // delay to save resources
       pros::delay(20);
-    } });
+    }
+  });
   // pros::Task brakeBypassHopefully([&]() {
   //   pros::Motor armMotor(8, pros::MotorGears::blue);
   //   while (true) {
@@ -154,15 +153,14 @@ void initialize()
   // });
 }
 
-void opcontrol()
-{
+void opcontrol() {
   pros::adi::DigitalOut piston('A');
   pros::adi::DigitalOut hitler('B');
+  pros::adi::DigitalOut hangPiston('C');
   pros::Motor intakeMotor(7, pros::MotorGears::blue);
   pros::Motor armMotor(8, pros::MotorGears::blue);
   // loop forever
-  while (true)
-  {
+  while (true) {
     // get left y and right x positions
     int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
     int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
@@ -174,83 +172,71 @@ void opcontrol()
     int hitlerToggle = controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT);
     int leftBtn = controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
     int upBtn = controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP);
-    if (intakeForward)
-    {
+    if (intakeForward) {
       intakeMotor.move_velocity(-600);
-    }
-    else if (intakeBackward)
-    {
+    } else if (intakeBackward) {
       intakeMotor.move_velocity(600);
-    }
-    else
-    {
+    } else {
       intakeMotor.move_velocity(0);
     }
 
-    if (armForward)
-    {
+    if (armForward) {
       armMotor.move_absolute(-2647, 600);
-    }
-    else if (armBackward)
-    {
+    } else if (armBackward) {
       armMotor.move_absolute(-100, 600);
-    }
-    else
-    {
+    } else {
       armMotor.move_velocity(0);
     }
 
-    if (pistonToggle)
-    {
-      if (!pistonState)
-      {
+    if (pistonToggle) {
+      if (!pistonState) {
         pistonState = true;
         piston.set_value(true);
-        while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
-        {
+        while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
           // delay to save resources
           pros::delay(25);
         }
-      }
-      else
-      {
+      } else {
         pistonState = false;
         piston.set_value(false);
-        while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
-        {
+        while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
           // delay to save resources
           pros::delay(25);
         }
       }
     }
-    if (hitlerToggle)
-    {
-      if (!hitlerState)
-      {
+    if (hitlerToggle) {
+      if (!hitlerState) {
         hitlerState = true;
         hitler.set_value(true);
-        while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
-        {
+        while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
           // delay to save resources
           pros::delay(25);
         }
-      }
-      else
-      {
+      } else {
         hitlerState = false;
         hitler.set_value(false);
-        while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
-        {
+        while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
           // delay to save resources
           pros::delay(25);
         }
       }
     }
-    if (leftBtn)
-    {
-      autonomous();
-      while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT))
-      {
+    if (leftBtn) {
+      if (!hangPistonState) {
+        hangPistonState = true;
+        hangPiston.set_value(true);
+        while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+          // delay to save resources
+          pros::delay(25);
+        }
+      } else {
+        hangPistonState = false;
+        hangPiston.set_value(false);
+        while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+          // delay to save resources
+          pros::delay(25);
+        }
       }
     }
 
@@ -274,15 +260,14 @@ ASSET(path_jerryio_1_txt);
 ASSET(path_jerryio_2_txt);
 ASSET(path_jerryio_3_txt);
 ASSET(path_jerryio_4_txt);
-void autonomous()
-{
+void autonomous() {
   pros::adi::DigitalOut piston('A');
   pros::adi::DigitalOut hitler('B');
   pros::Motor intakeMotor(7, pros::MotorGears::blue);
   pros::Motor armMotor(8, pros::MotorGears::blue);
   lemlib::Pose startPose(-52.774, // x position
                          -11.717, // y position
-                         270);     // heading
+                         270);    // heading
   chassis.setPose(startPose);
   chassis.follow(path_jerryio_1_txt, 10, 1000, false);
   pros::delay(1000);
