@@ -107,8 +107,6 @@ void scrollByOne() {
     scrollIndex = 0;
   }
   scrollIndex++;
-
-  //  // This line is not needed
 }
 
 // initialize function. Runs on program startup
@@ -143,14 +141,6 @@ void initialize() {
       pros::delay(20);
     }
   });
-  // pros::Task brakeBypassHopefully([&]() {
-  //   pros::Motor armMotor(8, pros::MotorGears::blue);
-  //   while (true) {
-  //     armMotor.brake();
-  //     // delay to save resources
-  //     pros::delay(50);
-  //   }
-  // });
 }
 
 void opcontrol() {
@@ -239,15 +229,6 @@ void opcontrol() {
         }
       }
     }
-
-    // if (upBtn) {
-    //   lemlib::Pose poseA(-52.774, // x position
-    //                      -11.717, // y position
-    //                      0);      // heading
-    //   chassis.setPose(poseA);
-    //   while (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
-    //   }
-    // }
 
     // move the robot
     chassis.arcade(leftY, rightX);
