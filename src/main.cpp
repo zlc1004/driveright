@@ -290,4 +290,6 @@ void autonomous()
   intakeMotor.move_velocity(-600);
   pros::delay(1000);
   chassis.follow(path_jerryio_2_txt, 10, 1000);
+  pros::delay(2000);
+  intakeMotor.move_velocity(0);
 }
